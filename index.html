@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>骑行数据分析</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+</head>
+<body>
+
+<!-- Navigation -->
+<header class="navbar">
+    <div class="nav-container">
+        <div class="nav-brand">
+            <i class="fas fa-bicycle"></i>
+            <h1>骑行数据分析</h1>
+        </div>
+        <nav class="nav-menu">
+            <a href="#overview" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </a>
+            <a href="#visualization" class="nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>可视化</span>
+            </a>
+            <a href="#analysis" class="nav-link">
+                <i class="fas fa-search"></i>
+                <span>分析</span>
+            </a>
+            <a href="#data" class="nav-link">
+                <i class="fas fa-database"></i>
+                <span>数据</span>
+            </a>
+            <a href="https://github.com/your-repo" target="_blank" class="nav-link github">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </a>
+        </nav>
+        <div class="nav-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+
+
+
+
+
+
+
+
+
+    <!-- Overview -->
+    <section id="overview" class="card">
+        <h2>骑行量时空演变分析</h2>
+        <p>
+            通过分析Citi Bike trips数据，直观感受纽约市路段和区域的骑行量增长以及存在的高峰时段的使用模式。
+        </p>
+        <div class="button-group">
+            <a class="btn" href="#visualization"><i class="fa fa-chart-line"></i> 查看可视化</a>
+            
+            <a class="btn" href="#data"><i class="fa fa-database"></i> 数据来源</a>
+        </div>
+    </section>
+
+    <!-- Dynamic Point Map Visualization -->
+    <section id="visualization" class="card">
+  <h2>时间动画地图</h2>
+
+
+  <iframe id="keplerFrame" src="2019.html" width="100%" height="600px" style="border:none;"></iframe>
+</section>
+
+    
+
+
+
+
+
+    <!-- Overview -->
+    <section id="overview" class="card">
+        <h2>使用量与骑行基础设施的关系分析</h2>
+        <p>
+            通过分析Citi Bike trips和自行车道地图数据，直观感受使用者骑行站点在纽约市自行车道的分布，判断行程是否主要经过受保护道。
+        </p>
+        <div class="button-group">
+            <a class="btn" href="#visualization"><i class="fa fa-chart-line"></i> 查看可视化</a>
+            
+            <a class="btn" href="#data"><i class="fa fa-database"></i> 数据来源</a>
+        </div>
+    </section>
+
+    <!-- Dynamic Point Map Visualization -->
+    <section id="visualization" class="card">
+        <h2> 自行车道叠加骑行点图</h2>
+
+  <iframe id="keplerFrame" src="20190.html" width="100%" height="600px" style="border:none;"></iframe>
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Overview -->
+    <section id="overview" class="card">
+        <h2>🚴‍♂️ 骑行事故空间风险分析 </h2>
+        <p>
+            通过分析NYPD交通事故数据，识别纽约市骑行事故的高发区域和风险因素。
+            重点关注事故是否集中在非受保护的自行车道上，为城市交通安全改进提供数据支持。
+        </p>
+        <div class="button-group">
+            <a class="btn" href="#visualization"><i class="fa fa-chart-line"></i> 查看可视化</a>
+            <a class="btn" href="#analysis"><i class="fa fa-search"></i> 风险分析</a>
+            <a class="btn" href="#data"><i class="fa fa-database"></i> 数据来源</a>
+        </div>
+    </section>
+
+
+    <section id="visualization" class="card">
+        <div class="tabs">
+
+            <!-- 动态分布图选项卡 -->
+            <div id="dynamic-map" class="tab-content active">
+                <div class="card">
+                    <h2> 动态事故分布图</h2>
+                    <p>基于时间轴和事故类型的动态可视化分析，展示事故点的时空分布规律。</p>
+                    
+                    <div class="coordinate-info">
+                        <h4>📊 坐标说明</h4>
+                        <p><strong>横轴 (X轴):</strong> 经度 (Longitude) - 从 -74.1° 到 -73.8° (纽约市东西方向)</p>
+                        <p><strong>纵轴 (Y轴):</strong> 纬度 (Latitude) - 从 40.6° 到 40.9° (纽约市南北方向)</p>
+                        <p><strong>数据点:</strong> 每个圆圈代表一起骑行事故，大小和颜色表示事故类型和严重程度</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="map-controls">
+                        <div class="control-group">
+                            <label for="timeSlider">时间范围:</label>
+                            <input type="range" id="timeSlider" min="0" max="100" value="50">
+                            <span id="timeDisplay">2022年6月</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="filterType">事故类型:</label>
+                            <select id="filterType">
+                                <option value="all">全部事故</option>
+                                <option value="fatal">致命事故</option>
+                                <option value="injury">受伤事故</option>
+                                <option value="property">财产损失</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <button id="playButton" class="btn">▶ 播放动画</button>
+                            <button id="resetButton" class="btn">🔄 重置</button>
+                        </div>
+                    </div>
+                    
+                    <div class="map-container">
+                        <div id="map"></div>
+                        <div class="map-legend">
+                            <h4>📋 图例说明</h4>
+                            <div class="legend-item">
+                                <span class="legend-color fatal"></span>
+                                <span>🔴 致命事故 (大圆)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color injury"></span>
+                                <span>🟠 受伤事故 (中圆)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color property"></span>
+                                <span>🔵 财产损失 (小圆)</span>
+                            </div>
+                            <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+                            <div style="font-size: 12px; color: #666;">
+                                <p><strong>操作提示:</strong></p>
+                                <p>• 拖动时间滑块查看不同时期</p>
+                                <p>• 选择事故类型进行筛选</p>
+                                <p>• 鼠标悬停查看详细信息</p>
+                                <p>• 点击播放观看动画</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-panel">
+                        <div class="stat-item">
+                            <h4>📈 总事故数</h4>
+                            <span id="totalAccidents">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <h4>⚠️ 高风险区域</h4>
+                            <span id="highRiskAreas">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <h4>🛡️ 受保护道事故率</h4>
+                            <span id="protectedRate">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 热力图分析选项卡 -->
+            <div id="heatmap" class="tab-content">
+                <div class="card">
+                    <h3>🔥 事故热力图分析</h3>
+                    <p>基于事故密度的高风险区域识别，帮助发现事故集中发生的热点区域。</p>
+                </div>
+                <div class="card">
+                    <div id="heatmap"></div>
+                </div>
+            </div>
+
+            <!-- 统计分析选项卡 -->
+            <div id="statistics" class="tab-content">
+                <div class="card">
+                    <h3>📊 事故统计分析</h3>
+                    <p>多维度统计图表，包括事故类型分布、时间趋势、地理分布等分析。</p>
+                </div>
+                <div class="card">
+                    <div id="chart"></div>
+                </div>
+            </div>
+
+            <!-- 基础设施影响选项卡 -->
+            <div id="infrastructure" class="tab-content">
+                <div class="card">
+                    <h3>🚴‍♂️ 骑行基础设施对使用量的影响分析</h3>
+                    <p>分析自行车道、受保护车道等基础设施对骑行使用量的影响，为城市规划提供数据支持。</p>
+                </div>
+                
+                <div class="card">
+                    <h4>📊 基础设施类型分布</h4>
+                    <div class="map-controls">
+                        <div class="control-group">
+                            <label for="infraType">基础设施类型:</label>
+                            <select id="infraType">
+                                <option value="all">全部类型</option>
+                                <option value="protected">受保护车道</option>
+                                <option value="dedicated">专用车道</option>
+                                <option value="shared">共享车道</option>
+                                <option value="none">无专用设施</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <button id="showUsageBtn" class="btn">📈 显示使用量</button>
+                            <button id="showGrowthBtn" class="btn">📊 显示增长率</button>
+                        </div>
+                    </div>
+                    <div id="infrastructureMap"></div>
+                </div>
+
+                <div class="analysis-grid">
+                    <div class="analysis-card">
+                        <h4>📈 基础设施使用量对比</h4>
+                        <div id="usageComparison"></div>
+                    </div>
+                    <div class="analysis-card">
+                        <h4>🔄 基础设施投资回报</h4>
+                        <div id="investmentROI"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 时空演变选项卡 -->
+            <div id="temporal" class="tab-content">
+                <div class="card">
+                    <h3>⏰ 骑行量时空演变分析</h3>
+                    <p>分析骑行使用量的时间变化和空间分布演变，识别骑行热点区域的发展趋势。</p>
+                </div>
+                
+                <div class="card">
+                    <h4>🕐 时间序列分析</h4>
+                    <div class="map-controls">
+                        <div class="control-group">
+                            <label for="timeRange">时间范围:</label>
+                            <select id="timeRange">
+                                <option value="daily">日变化</option>
+                                <option value="weekly">周变化</option>
+                                <option value="monthly">月变化</option>
+                                <option value="seasonal">季节变化</option>
+                                <option value="yearly">年变化</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="temporalSlider">时间点:</label>
+                            <input type="range" id="temporalSlider" min="0" max="100" value="50">
+                            <span id="temporalDisplay">2022年6月</span>
+                        </div>
+                        <div class="control-group">
+                            <button id="playTemporalBtn" class="btn">▶ 播放演变</button>
+                            <button id="resetTemporalBtn" class="btn">🔄 重置</button>
+                        </div>
+                    </div>
+                    <div id="temporalMap"></div>
+                </div>
+
+                <div class="analysis-grid">
+                    <div class="analysis-card">
+                        <h4>📊 热点区域演变</h4>
+                        <div id="hotspotEvolution"></div>
+                    </div>
+                    <div class="analysis-card">
+                        <h4>🌡️ 使用量热力图</h4>
+                        <div id="usageHeatmap"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 风险排名选项卡 -->
+            <div id="risk-ranking" class="tab-content">
+                <div class="card">
+                    <h3>⚠️ 高风险区域排名</h3>
+                    <p>基于事故频率和严重程度的风险指数计算，为交通安全管理提供数据支持。</p>
+                </div>
+                <div class="analysis-grid">
+                    <div class="analysis-card">
+                        <h4>🏆 高风险街道排名</h4>
+                        <div id="streetRanking"></div>
+                    </div>
+                    <div class="analysis-card">
+                        <h4>📈 月度事故趋势</h4>
+                        <div id="monthlyTrend"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analysis -->
+    <section id="analysis" class="card">
+        <h2>风险分析</h2>
+        <div class="analysis-grid">
+            <div class="analysis-item">
+                <h3>事故热点分析</h3>
+                <p>通过热力图显示事故高发区域，识别需要重点关注的街道和路口。</p>
+            </div>
+            <div class="analysis-item">
+                <h3>车道类型对比</h3>
+                <p>分析受保护自行车道与非受保护道的事故率差异，评估基础设施安全性。</p>
+            </div>
+            <div class="analysis-item">
+                <h3>时间模式</h3>
+                <p>探索事故发生的季节性、每周和每日模式，为交通管理提供依据。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Sources -->
+    <section id="data" class="card">
+        <h2>数据来源</h2>
+        <ul>
+            <li><strong>NYPD 交通事故数据:</strong> 2020-2023年自行车相关事故记录</li>
+            <li><strong>自行车道地图:</strong> 纽约市自行车道网络GeoJSON数据</li>
+            <li><strong>Citi Bike 轨迹数据:</strong> 骑行热点和流量分析</li>
+            <li><strong>桥梁骑行计数:</strong> 主要桥梁的骑行流量统计</li>
+        </ul>
+    </section>
+
+</main>
+
+<footer>
+    <p>&copy; 2025 骑行分析项目. 保留所有权利.</p>
+</footer>
+
+<script src="index.js"></script>
+</body>
+</html>
+<script>
+  // 月份选择器功能
+  document.getElementById("monthSelect").addEventListener("change", function() {
+    const selected = this.value;
+    document.getElementById("keplerFrame").src = selected;
+  });
+  
+  // 移动端导航栏切换
+  document.addEventListener('DOMContentLoaded', function() {
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    
+    navToggle.addEventListener('click', function() {
+      navToggle.classList.toggle('active');
+      navMenu.classList.toggle('active');
+    });
+    
+    // 点击导航链接后关闭移动端菜单
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        navToggle.classList.remove('active');
+        navMenu.classList.remove('active');
+      });
+    });
+    
+    // 平滑滚动到锚点
+    navLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href.startsWith('#')) {
+          e.preventDefault();
+          const target = document.querySelector(href);
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        }
+      });
+    });
+    
+    // 滚动监听器 - 自动高亮当前页面
+    function updateActiveNavLink() {
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+      
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (window.pageYOffset >= sectionTop - 200) {
+          current = section.getAttribute('id');
+        }
+      });
+      
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+          link.classList.add('active');
+        }
+      });
+    }
+    
+    // 监听滚动事件
+    window.addEventListener('scroll', updateActiveNavLink);
+    
+    // 初始化高亮
+    updateActiveNavLink();
+  });
+  
+  // 选项卡切换功能
+  function showTab(tabName) {
+    // 隐藏所有选项卡内容
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => content.classList.remove('active'));
+    
+    // 移除所有按钮的active类
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => button.classList.remove('active'));
+    
+    // 显示选中的选项卡
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+    
+    // 根据选项卡初始化相应的可视化
+    if (tabName === 'dynamic-map') {
+      initDynamicMap();
+    } else if (tabName === 'heatmap') {
+      initHeatmap();
+    } else if (tabName === 'statistics') {
+      initStatistics();
+    } else if (tabName === 'infrastructure') {
+      initInfrastructure();
+    } else if (tabName === 'temporal') {
+      initTemporal();
+    } else if (tabName === 'risk-ranking') {
+      initRiskRanking();
+    }
+  }
+
+  // 事故数据
+  const accidentData = [
+    {id: 1, longitude: -74.006, latitude: 40.7128, type: 'fatal', date: '2022-01-15', street: 'Broadway', severity: '严重'},
+    {id: 2, longitude: -73.9857, latitude: 40.7484, type: 'injury', date: '2022-02-20', street: '5th Avenue', severity: '中等'},
+    {id: 3, longitude: -73.9712, latitude: 40.7505, type: 'property', date: '2022-03-10', street: 'Park Avenue', severity: '轻微'},
+    {id: 4, longitude: -73.9565, latitude: 40.7589, type: 'fatal', date: '2022-04-05', street: 'Madison Avenue', severity: '严重'},
+    {id: 5, longitude: -73.9418, latitude: 40.7674, type: 'injury', date: '2022-05-12', street: 'Lexington Avenue', severity: '中等'},
+    {id: 6, longitude: -73.9271, latitude: 40.7759, type: 'property', date: '2022-06-18', street: '3rd Avenue', severity: '轻微'},
+    {id: 7, longitude: -73.9124, latitude: 40.7844, type: 'fatal', date: '2022-07-25', street: '2nd Avenue', severity: '严重'},
+    {id: 8, longitude: -73.8977, latitude: 40.7929, type: 'injury', date: '2022-08-30', street: '1st Avenue', severity: '中等'},
+    {id: 9, longitude: -74.0207, latitude: 40.7213, type: 'property', date: '2022-09-15', street: 'West Side Highway', severity: '轻微'},
+    {id: 10, longitude: -73.9913, latitude: 40.7043, type: 'fatal', date: '2022-10-20', street: 'FDR Drive', severity: '严重'}
+  ];
+
+  // 基础设施数据
+  const infrastructureData = [
+    {id: 1, longitude: -74.006, latitude: 40.7128, type: 'protected', street: 'Broadway', length: 2.5, usage: 1500, growth: 25, yearBuilt: 2020},
+    {id: 2, longitude: -73.9857, latitude: 40.7484, type: 'dedicated', street: '5th Avenue', length: 1.8, usage: 1200, growth: 18, yearBuilt: 2019},
+    {id: 3, longitude: -73.9712, latitude: 40.7505, type: 'shared', street: 'Park Avenue', length: 3.2, usage: 800, growth: 12, yearBuilt: 2018},
+    {id: 4, longitude: -73.9565, latitude: 40.7589, type: 'protected', street: 'Madison Avenue', length: 2.1, usage: 1800, growth: 32, yearBuilt: 2021},
+    {id: 5, longitude: -73.9418, latitude: 40.7674, type: 'dedicated', street: 'Lexington Avenue', length: 2.8, usage: 1100, growth: 15, yearBuilt: 2019}
+  ];
+
+  // 时空演变数据
+  const temporalData = [
+    {id: 1, longitude: -74.006, latitude: 40.7128, street: 'Broadway', usage2020: 800, usage2021: 1200, usage2022: 1500, usage2023: 1800},
+    {id: 2, longitude: -73.9857, latitude: 40.7484, street: '5th Avenue', usage2020: 600, usage2021: 900, usage2022: 1200, usage2023: 1400},
+    {id: 3, longitude: -73.9712, latitude: 40.7505, street: 'Park Avenue', usage2020: 400, usage2021: 600, usage2022: 800, usage2023: 1000},
+    {id: 4, longitude: -73.9565, latitude: 40.7589, street: 'Madison Avenue', usage2020: 1000, usage2021: 1400, usage2022: 1800, usage2023: 2200},
+    {id: 5, longitude: -73.9418, latitude: 40.7674, street: 'Lexington Avenue', usage2020: 700, usage2021: 1000, usage2022: 1100, usage2023: 1300}
+  ];
+
+  // 全局变量
+  let svg, currentTime = 50, isPlaying = false, animationId;
+  const margin = {top: 40, right: 40, bottom: 60, left: 60};
+  const width = 800 - margin.left - margin.right;
+  const height = 500 - margin.top - margin.bottom;
+
+  // 初始化动态地图
+  function initDynamicMap() {
+    setupMap();
+    setupControls();
+    renderPoints();
+    updateStats();
+  }
+
+  // 设置地图
+  function setupMap() {
+    // 清空现有内容
+    d3.select("#map").html("");
+    
+    // 创建SVG
+    const svgRoot = d3.select("#map")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom);
+    svg = svgRoot.append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // 设置坐标轴比例尺
+    const xScale = d3.scaleLinear()
+      .domain([-74.1, -73.8])
+      .range([0, width]);
+
+    const yScale = d3.scaleLinear()
+      .domain([40.6, 40.9])
+      .range([height, 0]);
+
+    // 添加X轴
+    svg.append("g")
+      .attr("class", "x-axis")
+      .attr("transform", `translate(0,${height})`)
+      .call(d3.axisBottom(xScale)
+        .tickFormat(d => d.toFixed(1) + "°")
+        .ticks(8));
+
+    // 添加Y轴
+    svg.append("g")
+      .attr("class", "y-axis")
+      .call(d3.axisLeft(yScale)
+        .tickFormat(d => d.toFixed(1) + "°")
+        .ticks(6));
+
+    // 添加坐标轴标题
+    svg.append("text")
+      .attr("class", "x-label")
+      .attr("text-anchor", "middle")
+      .attr("x", width / 2)
+      .attr("y", height + margin.bottom - 10)
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .text("经度 (Longitude)");
+
+    svg.append("text")
+      .attr("class", "y-label")
+      .attr("text-anchor", "middle")
+      .attr("transform", "rotate(-90)")
+      .attr("x", -height / 2)
+      .attr("y", -margin.left + 20)
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .text("纬度 (Latitude)");
+
+    // 添加网格线
+    addGridLines(xScale, yScale);
+
+    // 添加标题
+    svg.append("text")
+      .attr("class", "title")
+      .attr("text-anchor", "middle")
+      .attr("x", width / 2)
+      .attr("y", -10)
+      .style("font-size", "18px")
+      .style("font-weight", "bold")
+      .style("fill", "#667eea")
+      .text("纽约市骑行事故分布图");
+
+    // 保存比例尺供后续使用
+    svg.xScale = xScale;
+    svg.yScale = yScale;
+  }
+
+  // 添加网格线
+  function addGridLines(xScale, yScale) {
+    // 垂直网格线
+    svg.append("g")
+      .attr("class", "grid")
+      .attr("stroke-dasharray", "3,3")
+      .call(d3.axisBottom(xScale)
+        .tickSize(-height)
+        .tickFormat("")
+        .ticks(8));
+
+    // 水平网格线
+    svg.append("g")
+      .attr("class", "grid")
+      .attr("stroke-dasharray", "3,3")
+      .call(d3.axisLeft(yScale)
+        .tickSize(-width)
+        .tickFormat("")
+        .ticks(6));
+
+    // 设置网格线样式
+    svg.selectAll(".grid line")
+      .style("stroke", "#ddd")
+      .style("stroke-opacity", 0.3);
+  }
+
+  // 设置控件
+  function setupControls() {
+    const timeSlider = document.getElementById("timeSlider");
+    const filterType = document.getElementById("filterType");
+    const playButton = document.getElementById("playButton");
+    const resetButton = document.getElementById("resetButton");
+
+    // 时间滑块
+    timeSlider.addEventListener("input", (e) => {
+      currentTime = parseInt(e.target.value);
+      updateTimeDisplay();
+      renderPoints();
+    });
+
+    // 类型筛选
+    filterType.addEventListener("change", renderPoints);
+
+    // 播放/暂停
+    playButton.addEventListener("click", togglePlay);
+
+    // 重置
+    resetButton.addEventListener("click", reset);
+  }
+
+  // 渲染事故点
+  function renderPoints() {
+    if (!svg || !svg.xScale || !svg.yScale) return;
+    const filterType = document.getElementById("filterType").value;
+
+    // 只清除点，不清除坐标轴和网格
+    svg.selectAll(".accident-point").remove();
+
+    // 筛选数据
+    let filteredData = accidentData.filter(d => {
+      if (filterType === "all") return true;
+      return d.type === filterType;
+    });
+
+    // 根据时间筛选
+    filteredData = filteredData.filter(d => {
+      const date = new Date(d.date);
+      const startDate = new Date('2022-01-01');
+      const endDate = new Date('2023-12-31');
+      const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+      const currentDays = (date - startDate) / (1000 * 60 * 60 * 24);
+      const timeIndex = Math.round((currentDays / totalDays) * 100);
+      return timeIndex <= currentTime;
+    });
+
+    // 创建点
+    const points = svg.selectAll(".accident-point")
+      .data(filteredData)
+      .enter()
+      .append("circle")
+      .attr("class", "accident-point")
+      .attr("cx", d => svg.xScale(d.longitude))
+      .attr("cy", d => svg.yScale(d.latitude))
+      .attr("r", 0)
+      .attr("fill", d => getColor(d.type))
+      .attr("stroke", "white")
+      .attr("stroke-width", 2)
+      .attr("opacity", 0.8)
+      .style("cursor", "pointer");
+
+    // 动画播放时不加 delay，静态切换时有 delay
+    if (isPlaying) {
+      points.transition()
+        .duration(300)
+        .attr("r", d => getSize(d.type))
+        .attr("opacity", 0.9);
+    } else {
+      points.transition()
+        .duration(800)
+        .delay((d, i) => i * 100)
+        .attr("r", d => getSize(d.type))
+        .attr("opacity", 0.9);
+    }
+
+    // 添加悬停效果
+    points.on("mouseover", showTooltip)
+      .on("mouseout", hideTooltip)
+      .on("mouseenter", function() {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr("r", d => getSize(d.type) * 1.5)
+          .attr("stroke-width", 3);
+      })
+      .on("mouseleave", function() {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr("r", d => getSize(d.type))
+          .attr("stroke-width", 2);
+      });
+
+    updateStats();
+  }
+
+  // 获取颜色
+  function getColor(type) {
+    const colors = {
+      "fatal": "#d32f2f",
+      "injury": "#ff9800",
+      "property": "#2196f3"
+    };
+    return colors[type] || "#666";
+  }
+
+  // 获取大小
+  function getSize(type) {
+    const sizes = {
+      "fatal": 12,
+      "injury": 8,
+      "property": 6
+    };
+    return sizes[type] || 5;
+  }
+
+  // 显示工具提示
+  function showTooltip(event, d) {
+    const tooltip = d3.select("body").selectAll(".tooltip").data([1]);
+    
+    tooltip.enter()
+      .append("div")
+      .attr("class", "tooltip");
+    
+    tooltip.html(`
+      <div style="font-weight: bold; margin-bottom: 5px;">🚨 事故详情</div>
+      <div><strong>类型:</strong> ${getTypeName(d.type)}</div>
+      <div><strong>位置:</strong> ${d.street}</div>
+      <div><strong>时间:</strong> ${d.date}</div>
+      <div><strong>严重程度:</strong> ${d.severity}</div>
+      <div><strong>坐标:</strong> ${d.longitude.toFixed(3)}°, ${d.latitude.toFixed(3)}°</div>
+    `)
+    .style("left", (event.pageX + 10) + "px")
+    .style("top", (event.pageY - 10) + "px");
+  }
+
+  // 隐藏工具提示
+  function hideTooltip() {
+    d3.selectAll(".tooltip").remove();
+  }
+
+  // 获取类型名称
+  function getTypeName(type) {
+    const names = {
+      "fatal": "致命事故",
+      "injury": "受伤事故",
+      "property": "财产损失"
+    };
+    return names[type] || "未知";
+  }
+
+  // 更新时间显示
+  function updateTimeDisplay() {
+    const year = 2022 + Math.floor(currentTime / 50);
+    const month = Math.floor((currentTime % 50) / 4) + 1;
+    document.getElementById("timeDisplay").textContent = `${year}年${month}月`;
+  }
+
+  // 切换播放/暂停
+  function togglePlay() {
+    const playButton = document.getElementById("playButton");
+    
+    if (isPlaying) {
+      pause();
+    } else {
+      play();
+    }
+  }
+
+  // 播放动画
+  function play() {
+    if (isPlaying) return;
+    
+    isPlaying = true;
+    const playButton = document.getElementById("playButton");
+    playButton.innerHTML = '⏸ 暂停动画';
+    
+    animate();
+  }
+
+  // 暂停动画
+  function pause() {
+    isPlaying = false;
+    const playButton = document.getElementById("playButton");
+    playButton.innerHTML = '▶ 播放动画';
+    
+    if (animationId) {
+      clearTimeout(animationId);
+    }
+  }
+
+  // 动画循环
+  function animate() {
+    if (!isPlaying) return;
+    
+    currentTime += 1;
+    if (currentTime > 100) {
+      currentTime = 0;
+    }
+    
+    document.getElementById("timeSlider").value = currentTime;
+    updateTimeDisplay();
+    renderPoints();
+    
+    animationId = setTimeout(animate, 300);
+  }
+
+  // 重置
+  function reset() {
+    pause();
+    currentTime = 0;
+    document.getElementById("timeSlider").value = 0;
+    updateTimeDisplay();
+    renderPoints();
+  }
+
+  // 更新统计
+  function updateStats() {
+    const filterType = document.getElementById("filterType").value;
+    let filteredData = accidentData.filter(d => {
+      if (filterType === "all") return true;
+      return d.type === filterType;
+    });
+
+    filteredData = filteredData.filter(d => {
+      const date = new Date(d.date);
+      const startDate = new Date('2022-01-01');
+      const endDate = new Date('2023-12-31');
+      const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+      const currentDays = (date - startDate) / (1000 * 60 * 60 * 24);
+      const timeIndex = Math.round((currentDays / totalDays) * 100);
+      return timeIndex <= currentTime;
+    });
+
+    const totalAccidents = filteredData.length;
+    const highRiskAreas = calculateHighRiskAreas(filteredData);
+    const protectedRate = calculateProtectedRate(filteredData);
+
+    document.getElementById("totalAccidents").textContent = totalAccidents;
+    document.getElementById("highRiskAreas").textContent = highRiskAreas;
+    document.getElementById("protectedRate").textContent = protectedRate + "%";
+  }
+
+  // 计算高风险区域
+  function calculateHighRiskAreas(data) {
+    const areas = {};
+    data.forEach(d => {
+      const area = d.street.split(' ')[0];
+      areas[area] = (areas[area] || 0) + 1;
+    });
+    return Object.values(areas).filter(count => count >= 2).length;
+  }
+
+  // 计算受保护道事故率
+  function calculateProtectedRate(data) {
+    if (data.length === 0) return 0;
+    const protectedAccidents = data.filter(d => d.street.includes('Avenue')).length;
+    return Math.round((protectedAccidents / data.length) * 100);
+  }
+
+ 
+  // 页面加载完成后初始化第一个选项卡
+  document.addEventListener('DOMContentLoaded', () => {
+    initDynamicMap();
+  });
+</script>
